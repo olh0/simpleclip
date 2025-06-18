@@ -7,7 +7,7 @@ app.secret_key = 'your_secret_key'  # 用于会话安全
 
 # 数据库初始化函数
 def init_db():
-    conn = sqlite3.connect('clipboard.db')
+    conn = sqlite3.connect('tmp/clipboard.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS contents(
@@ -24,7 +24,7 @@ def init_db():
 init_db()
 
 def read_db():
-    conn = sqlite3.connect('clipboard.db')
+    conn = sqlite3.connect('tmp/clipboard.db')
     cursor = conn.cursor()
     rows = cursor.execute("SELECT id, text, time FROM contents ORDER BY id DESC LIMIT 5").fetchall()
     # 返回最新5条记录（最新在第一位）
@@ -34,7 +34,7 @@ def read_db():
     return items
 
 def write_db(add_text):
-    conn = sqlite3.connect('./tmp/clipboard.db')
+    conn = sqlite3.connect('tmp/clipboard.db')
     cursor = conn.cursor()
     cursor.execute("INSERT INTO contents(text) VALUES (?)", (add_text.strip(),))
     conn.commit()

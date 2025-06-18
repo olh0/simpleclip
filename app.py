@@ -69,5 +69,9 @@ def add_item():
             'message': '请输入有效的项目内容'
         }), 400
 
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
 if __name__ == '__main__':
     app.run(debug=True)

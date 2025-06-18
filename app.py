@@ -43,8 +43,11 @@ def write_db(add_text):
 
 @app.route('/', methods=['GET'])
 def index():
-    items = read_db()
-    return render_template('index.html', items=items)
+    try:
+        items = read_db()
+        return render_template('index.html', items=items)
+    except Exception as e:
+        return f"Error: {str(e)}", 500  # 显示具体错误
 
 @app.route('/add-item', methods=['POST'])
 def add_item():
@@ -74,4 +77,4 @@ def favicon():
     return '', 204
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port='5001')

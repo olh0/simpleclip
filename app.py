@@ -34,7 +34,7 @@ def read_db():
     return items
 
 def write_db(add_text):
-    conn = sqlite3.connect('clipboard.db')
+    conn = sqlite3.connect('./tmp/clipboard.db')
     cursor = conn.cursor()
     cursor.execute("INSERT INTO contents(text) VALUES (?)", (add_text.strip(),))
     conn.commit()

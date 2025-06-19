@@ -12,16 +12,37 @@
         }
         .container {
             max-width: 600px;
-            margin-top: 50px;
+            margin-top: 10px;
             background: white;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        .title {
+            text-align:left;
+            margin-bottom: 25px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .alert {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
         .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            /* 重点修改这里为Grid布局 */
+            display: grid;
+            /* 定义两列：第一列（文本+时间戳）自适应，第二列（按钮）固定宽度 */
+            grid-template-columns: 1fr auto;
+            /* 确保按钮有足够空间，例如 90px */
+            grid-template-areas: "content button";
+            gap: 15px; /* 内容和按钮之间的间距 */
+
+            align-items: center; /* 垂直居中对齐内容和按钮 */
             padding: 12px 15px;
             margin-bottom: 10px;
             background-color: #f8f9fa;
@@ -34,20 +55,41 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
+        .list-content-wrapper {
+            grid-area: content; /* 放置在名为 content 的区域 */
+            min-width: 0; /* 允许内部文本在必要时收缩 */
+        }
         .list-text {
-            flex-grow: 1;
-            margin-right: 15px;
             word-break: break-word;
             font-size: 16px;
             color: #333;
-            white-space: nowrap;
+            white-space: pre-wrap; /* 关键：保留换行 */
+            /* 限制文本显示2行并添加省略号 */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 限制2行 */
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis; 
+            text-overflow: ellipsis;
+        }
+        .list-text a {
+            color: #0d6efd; /* 链接颜色 */
+            text-decoration: underline; /* 下划线 */
+        }
+        .list-text a:hover {
+            color: #0a58ca;
+        }
+        .list-timestamp {
+            font-size: 0.75em; /* 小字体 */
+            color: #999; /* 不明显的颜色 */
+            margin-top: 5px; /* 与文本的间距 */
         }
         .btn-copy {
-            width: 80px;
+            grid-area: button; /* 放置在名为 button 的区域 */
+            width: 50px; /* 固定按钮宽度 */
             background-color: #0d6efd;
             color: white;
+            flex-shrink: 0;
+            text-align: center; /* 按钮文本居中 */
         }
         .btn-copy:hover {
             background-color: #0b5ed7;
@@ -59,23 +101,6 @@
         .btn-add:hover {
             background-color: #157347;
         }
-        .form-control:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-        .title {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #333;
-            font-weight: 600;
-        }
-        .alert {
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-        }
-        
-        /* 新添加的动画样式 */
         .list-item.new-item {
             animation: highlight 1.5s;
         }
@@ -87,27 +112,29 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="title">在线剪切板</h1>
-        
-        <!-- 消息区域（用于显示AJAX返回的消息） -->
+        <h5 class="title">在线剪切板</h1>
+
         <div id="message-area"></div>
-        
-        <form id="add-item-form" method="POST" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="new_item" id="new_item" class="form-control" 
-                       placeholder="输入要添加的列表项..." required>
-                <button type="submit" class="btn btn-add">添加</button>
+
+        <div class="mb-4">
+            <textarea id="new_item" name="new_item" class="form-control" rows="4"
+                      placeholder="输入要添加的文本，支持换行..."></textarea>
+            <div class="d-flex justify-content-end align-items-center mt-2">
+                <button id="clear-all-btn" class="btn btn-danger me-auto">清除所有</button>
+                <button id="paste-add-btn" class="btn btn-secondary me-2">从剪贴板添加</button>
+                <button id="add-btn" class="btn btn-add">添加</button>
             </div>
-        </form>
-        
+        </div>
+
         <div id="list-container" class="list-group">
-            {% for item in items %}
-                <div class="list-item" data-id="{{ loop.index }}">
-                    <div class="list-text">{{ item }}</div>
-                    <button class="btn btn-copy btn-sm copy-btn" 
-                            data-text="{{ item }}">
-                        复制
-                    </button>
+            <!-- 初始加载的内容，如果后端通过Jinja2渲染，结构应与JS动态生成一致 -->
+            {% for item_content, item_timestamp in items %}
+                <div class="list-item">
+                    <div class="list-content-wrapper">
+                        <div class="list-text">{{ item_content }}</div>
+                        <div class="list-timestamp">{{ item_timestamp }}</div>
+                    </div>
+                    <button class="btn btn-copy btn-sm copy-btn">复制</button>
                 </div>
             {% endfor %}
         </div>
@@ -115,51 +142,65 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 表单提交处理
-        document.getElementById('add-item-form').addEventListener('submit', function(e) {
-            e.preventDefault(); // 阻止表单默认提交行为
-            
-            const newItemInput = document.getElementById('new_item');
-            const messageArea = document.getElementById('message-area');
-            
-            // 清空消息区域
-            messageArea.innerHTML = '';
-            
-            // 发送AJAX请求
-            fetch('/add-item', {
-                method: 'POST',
-                body: new FormData(this),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
+        // 判断是否是URL的正则表达式
+        const urlRegex = /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i;
+
+        // 页面加载时执行的函数
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查剪贴板API支持并隐藏按钮
+            const pasteAddBtn = document.getElementById('paste-add-btn');
+            // 对于移动端，navigator.clipboard 可能存在但受限，根据readText的成功与否，隐藏按钮
+            if (!navigator.clipboard || !navigator.clipboard.readText || !window.isSecureContext) {
+                 pasteAddBtn.style.display = 'none';
+            }
+
+            // 初始加载列表 (如果后端通过Jinja2渲染了初始数据，这里可能不需要)
+            // 但通常AJAX应用会通过JS获取初始数据
+            /**
+            fetch('/get-items') // 假设有一个新的API来获取所有项目 (或者您的根路由 '/' 就直接返回这个结构)
+                .then(response => {
+                    if (!response.ok) {
+                        // 如果后端没有/get-items路由，或者返回格式不对，这里会捕获
+                        console.warn('Initial /get-items fetch failed or returned non-JSON. Trying to use server-rendered data if available.');
+                        // 尝试从服务器预渲染的数据中初始化
+                        // 遍历list-container中已有的list-item元素并解析
+                        const initialItems = [];
+                        document.querySelectorAll('#list-container .list-item').forEach(itemEl => {
+                            const text = itemEl.querySelector('.list-text').textContent;
+                            // 注意：这里需要后端预渲染一个ISO格式的时间戳作为data属性，或者在后端进行格式化
+                            const timestampStr = itemEl.querySelector('.list-timestamp') ? itemEl.querySelector('.list-timestamp').dataset.isoTimestamp : new Date().toISOString();
+                            initialItems.push([text, timestampStr]);
+                        });
+                        if (initialItems.length > 0) {
+                            updateList(initialItems);
+                        } else {
+                            showMessage('加载列表失败，请刷新页面重试', 'danger');
+                        }
+                        throw new Error('Initial fetch failed, fallback to server-rendered data'); // 阻止后续.then执行
+                    }
                     return response.json();
-                }
-                return response.json().then(err => {
-                    throw new Error(err.message || '服务器错误');
-                });
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    // 清空输入框
-                    newItemInput.value = '';
-                    
-                    // 显示成功消息
-                    showMessage(data.message, 'success');
-                    
-                    // 更新列表
-                    updateList(data.items);
-                } else {
-                    showMessage(data.message, 'danger');
-                }
-            })
-            .catch(error => {
-                showMessage(error.message || '添加项目失败，请重试', 'danger');
-            });
+                })
+                .then(data => {
+                    if (data.status === 'success' && data.items) {
+                        updateList(data.items);
+                    } else {
+                        showMessage(data.message || '加载列表失败', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to fetch initial items:', error);
+                    // 已经在上面的.then中处理了fallback，这里只捕获网络错误
+                    if (error.message.includes('Failed to fetch')) {
+                        showMessage('加载列表失败，请检查网络连接', 'danger');
+                    }
+                }); **/
         });
-        
+
+        // // 辅助函数：判断是否是移动设备
+        // function isMobileDevice() {
+        //     return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // }
+
         // 显示消息的函数
         function showMessage(message, type) {
             const messageArea = document.getElementById('message-area');
@@ -167,138 +208,240 @@
             alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
             alertDiv.innerHTML = `
                 ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem 0.5rem"></button>
             `;
+            messageArea.innerHTML = ''; // 先清空旧消息，再添加新消息
             messageArea.appendChild(alertDiv);
-            
-            // 3秒后自动消失
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alertDiv);
-                bsAlert.close();
-            }, 3000);
         }
-        
-        // 更新列表的函数
+
+        // 更新列表显示的函数
         function updateList(items) {
             const listContainer = document.getElementById('list-container');
-            
-            // 移除所有现有项
-            while (listContainer.firstChild) {
-                listContainer.removeChild(listContainer.firstChild);
+            listContainer.innerHTML = ''; // 清空现有列表
+
+            if (items && items.length > 0) {
+                items.forEach((itemTuple, index) => { // itemTuple现在是 [content, timestamp_string]
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'list-item';
+                    // 假设服务器返回的列表中，第一项是最新的
+                    if (index === 0) {
+                        itemElement.classList.add('new-item');
+                    }
+
+                    const contentWrapper = document.createElement('div');
+                    contentWrapper.className = 'list-content-wrapper';
+
+                    const textElement = document.createElement('div');
+                    textElement.className = 'list-text';
+
+                    const itemText = itemTuple[0]; // 获取文本内容
+
+                    // 检查是否为URL并创建链接
+                    if (urlRegex.test(itemText.trim())) {
+                        const link = document.createElement('a');
+                        // 确保URL有协议头
+                        link.href = itemText.startsWith('http://') || itemText.startsWith('https://') ? itemText : `http://${itemText}`;
+                        link.textContent = itemText;
+                        link.target = '_blank'; // 新标签页打开
+                        link.rel = 'noopener noreferrer'; // 安全性
+                        textElement.appendChild(link);
+                    } else {
+                        textElement.textContent = itemText; // 使用 textContent 安全地设置文本
+                    }
+
+                    const timestampElement = document.createElement('div');
+                    timestampElement.className = 'list-timestamp';
+
+                    const timestampString = itemTuple[1]; // 获取时间戳字符串
+                    try {
+                        const date = new Date(timestampString);
+                        // 检查Date对象是否有效
+                        if (isNaN(date.getTime())) {
+                            timestampElement.textContent = '无效时间';
+                        } else {
+                            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const hours = String(date.getHours()).padStart(2, '0');
+                            const minutes = String(date.getMinutes()).padStart(2, '0');
+                            timestampElement.textContent = `${month}-${day} ${hours}:${minutes}`;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing timestamp:', timestampString, e);
+                        timestampElement.textContent = '时间解析错误';
+                    }
+
+                    contentWrapper.appendChild(textElement);
+                    contentWrapper.appendChild(timestampElement);
+
+                    const buttonElement = document.createElement('button');
+                    buttonElement.className = 'btn btn-copy btn-sm copy-btn';
+                    buttonElement.textContent = '复制';
+
+                    itemElement.appendChild(contentWrapper);
+                    itemElement.appendChild(buttonElement);
+                    listContainer.appendChild(itemElement);
+                });
             }
-            
-            // 添加新项
-            items.forEach((item, index) => {
-                const itemElement = document.createElement('div');
-                itemElement.className = 'list-item' + (index === 0 ? ' new-item' : '');
-                itemElement.innerHTML = `
-                    <div class="list-text">${item}</div>
-                    <button class="btn btn-copy btn-sm copy-btn" 
-                            data-text="${item}">
-                        复制
-                    </button>
-                `;
-                listContainer.appendChild(itemElement);
+        }
+
+        // 核心：通过AJAX添加新项到服务器
+        function addItemToServer(text) {
+            if (!text || text.trim() === '') {
+                showMessage('内容不能为空', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('new_item', text);
+            formData.append('timestamp', new Date().toISOString());
+
+            fetch('/add-item', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || '服务器错误'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('new_item').value = ''; // 清空输入框
+                    showMessage(data.message, 'success');
+                    updateList(data.items); // 用服务器返回的完整列表更新UI
+                } else {
+                    showMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showMessage(error.message || '请求失败，请检查网络连接', 'danger');
             });
         }
-        
-        // 事件委托监听复制按钮点击
-        document.querySelector('#list-container').addEventListener('click', function(e) {
-            if (e.target.classList.contains('copy-btn')) {
-                const button = e.target;
-                const text = button.getAttribute('data-text');
-                copyTextWithFullFallback(text, button);
+
+        // --- 事件监听器 ---
+
+        // 监听“添加”按钮
+        document.getElementById('add-btn').addEventListener('click', () => {
+            addItemToServer(document.getElementById('new_item').value);
+        });
+
+        // 监听“从剪贴板添加”按钮
+        document.getElementById('paste-add-btn').addEventListener('click', () => {
+            // 再次检查是否支持剪贴板api
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText()
+                    .then(text => text.trim() ? addItemToServer(text) : showMessage('剪贴板为空', 'info'))
+                    .catch(err => {
+                        console.error('无法读取剪贴板: ', err);
+                        showMessage('无法访问剪贴板，请检查浏览器权限', 'danger');
+                    });
+            } else {
+                showMessage('您的浏览器不支持剪贴板API，请手动粘贴', 'warning');
             }
         });
 
-        // 更可靠的复制方法
-        function copyTextWithFullFallback(text, button) {
-            // 使用更可靠的传统方法
-            if (!copyTextUsingExecCommand(text)) {
-                // 传统方法失败后尝试现代API
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        showCopyFeedback(button);
-                    }).catch(err => {
-                        console.error('现代API复制失败:', err);
-                        showFailedFeedback(button, text);
-                    });
-                } else {
-                    showFailedFeedback(button, text);
-                }
+        // 监听“清除所有”按钮
+        document.getElementById('clear-all-btn').addEventListener('click', () => {
+            if (confirm('确定要清除所有项目吗？')) {
+                fetch('/clear-all', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || '服务器错误'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        showMessage('所有项目已清除', 'success');
+                        updateList(data.items || []);
+                    } else {
+                        showMessage(data.message || '清除失败', 'danger');
+                    }
+                })
+                .catch(error => {
+                    showMessage(error.message || '请求失败，请检查网络连接', 'danger');
+                });
+            }
+        });
+
+        // 使用事件委托监听所有“复制”按钮
+        document.getElementById('list-container').addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('copy-btn')) {
+                const button = e.target;
+                // 获取要复制的文本，这里是从 list-text 元素中获取
+                // button.previousElementSibling 获取到的是 list-content-wrapper
+                const textToCopy = button.previousElementSibling.querySelector('.list-text').textContent;
+                copyTextToClipboard(textToCopy, button);
+            }
+        });
+
+        // --- 复制功能相关的函数 ---
+
+        function copyTextToClipboard(text, button) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback(button, true);
+                }).catch(err => {
+                    console.error('现代API复制失败:', err);
+                    if (copyTextUsingExecCommand(text)) {
+                        showCopyFeedback(button, true);
+                    } else {
+                        showCopyFeedback(button, false, text);
+                    }
+                });
             } else {
-                showCopyFeedback(button);
-            }
-        }
-
-        // 使用document.execCommand的传统复制方法
-        function copyTextUsingExecCommand(text) {
-            try {
-                // 创建隐藏的textarea
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.top = 0;
-                textArea.style.left = 0;
-                textArea.style.width = '2em';
-                textArea.style.height = '2em';
-                textArea.style.padding = 0;
-                textArea.style.border = 'none';
-                textArea.style.outline = 'none';
-                textArea.style.boxShadow = 'none';
-                textArea.style.background = 'transparent';
-                document.body.appendChild(textArea);
-                
-                // 选中内容并复制
-                textArea.select();
-                
-                // 尝试使用document.execCommand复制
-                let success = false;
-                try {
-                    success = document.execCommand('copy');
-                } catch (err) {
-                    console.error('execCommand复制失败:', err);
-                } finally {
-                    // 清理临时元素
-                    document.body.removeChild(textArea);
+                if (copyTextUsingExecCommand(text)) {
+                    showCopyFeedback(button, true);
+                } else {
+                    showCopyFeedback(button, false, text);
                 }
-                
-                return success;
-            } catch (err) {
-                console.error('复制过程中出错:', err);
-                return false;
             }
         }
 
-        // 显示复制成功反馈
-        function showCopyFeedback(button) {
-            const originalText = button.textContent;
-            button.textContent = '已复制!';
-            button.classList.add('btn-success');
-            button.classList.remove('btn-copy');
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('btn-success');
-                button.classList.add('btn-copy');
-            }, 2000);
+        function copyTextUsingExecCommand(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('execCommand复制失败:', err);
+            }
+            document.body.removeChild(textArea);
+            return success;
         }
-        
-        // 显示复制失败反馈
-        function showFailedFeedback(button, text) {
-            const originalText = button.textContent;
-            button.textContent = '复制失败!';
-            button.classList.add('btn-danger');
-            button.classList.remove('btn-copy');
-            
+
+        function showCopyFeedback(button, success, fallbackText = '') {
+            const originalText = '复制';
+            // 原始类名保留，只改变颜色相关的类
+            const originalClasses = ['btn-copy', 'btn-sm']; // 根据你的CSS，可能还有其他默认类
+
+            if (success) {
+                button.textContent = '已复制!';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-copy'); // 移除原来的颜色类
+            } else {
+                button.textContent = '复制失败!';
+                button.classList.add('btn-danger');
+                button.classList.remove('btn-copy'); // 移除原来的颜色类
+                alert('自动复制失败，请手动复制:\n\n' + fallbackText);
+            }
+
             setTimeout(() => {
                 button.textContent = originalText;
-                button.classList.remove('btn-danger');
-                button.classList.add('btn-copy');
+                button.classList.remove('btn-success', 'btn-danger'); // 移除临时的颜色类
+                button.classList.add('btn-copy'); // 恢复原来的颜色类
             }, 2000);
-            
-            // 提示用户手动复制
-            alert('请手动复制以下内容：\n\n' + text);
         }
     </script>
 </body>

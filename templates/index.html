@@ -34,11 +34,10 @@
             border-radius: 8px;
         }
         .list-item {
-            /* 重点修改这里为Grid布局 */
+            /* 修改这里为Grid布局 */
             display: grid;
-            /* 定义两列：第一列（文本+时间戳）自适应，第二列（按钮）固定宽度 */
+            /* 定义两列：第一列（文本+时间戳）自适应，第二列（按钮） */
             grid-template-columns: 1fr auto;
-            /* 确保按钮有足够空间，例如 90px */
             grid-template-areas: "content button";
             gap: 15px; /* 内容和按钮之间的间距 */
 
@@ -63,7 +62,7 @@
             word-break: break-word;
             font-size: 16px;
             color: #333;
-            white-space: pre-wrap; /* 关键：保留换行 */
+            white-space: pre-wrap; /* 保留换行 */
             /* 限制文本显示2行并添加省略号 */
             display: -webkit-box;
             -webkit-line-clamp: 2; /* 限制2行 */
@@ -72,24 +71,25 @@
             text-overflow: ellipsis;
         }
         .list-text a {
-            color: #0d6efd; /* 链接颜色 */
-            text-decoration: underline; /* 下划线 */
+            color: #0d6efd;
+            text-decoration: underline;
         }
         .list-text a:hover {
             color: #0a58ca;
         }
         .list-timestamp {
-            font-size: 0.75em; /* 小字体 */
-            color: #999; /* 不明显的颜色 */
-            margin-top: 5px; /* 与文本的间距 */
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+            margin-bottom: -5px;
         }
         .btn-copy {
             grid-area: button; /* 放置在名为 button 的区域 */
-            width: 50px; /* 固定按钮宽度 */
+            width: 50px;
             background-color: #0d6efd;
             color: white;
             flex-shrink: 0;
-            text-align: center; /* 按钮文本居中 */
+            text-align: center;
         }
         .btn-copy:hover {
             background-color: #0b5ed7;
@@ -107,6 +107,12 @@
         @keyframes highlight {
             0% { background-color: rgba(25, 135, 84, 0.3); }
             100% { background-color: #f8f9fa; }
+        }
+        @media (max-width: 600px) {
+            .btn {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
         }
     </style>
 </head>
@@ -127,34 +133,31 @@
         </div>
 
         <div id="list-container" class="list-group">
-            <!-- 初始加载的内容，如果后端通过Jinja2渲染，结构应与JS动态生成一致 -->
-                <div class="list-item">
-                    <div class="list-content-wrapper">
-                        <div class="list-text"></div>
-                        <div class="list-timestamp"></div>
-                    </div>
-                    <button class="btn btn-copy btn-sm copy-btn">复制</button>
+            <div class="list-item">
+                <div class="list-content-wrapper">
+                    <div class="list-text"></div>
+                    <div class="list-timestamp"></div>
                 </div>
+                <button class="btn btn-copy btn-sm copy-btn">复制</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 判断是否是URL的正则表达式
+        // 判断文本是否是URL，后面会把它变为链接标签
         const urlRegex = /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i;
 
-        // 页面加载时执行的函数
+        // 页面加载（刷新）时执行的函数
         document.addEventListener('DOMContentLoaded', () => {
             // 检查剪贴板API支持并隐藏按钮
             const pasteAddBtn = document.getElementById('paste-add-btn');
-            // 对于移动端，navigator.clipboard 可能存在但受限，根据readText的成功与否，隐藏按钮
+            // 如果不支持读取剪贴板，就隐藏按钮。对于移动端浏览器，即使api存在也可能缺少权限
             if (!navigator.clipboard || !navigator.clipboard.readText || !window.isSecureContext) {
                  pasteAddBtn.style.display = 'none';
             }
-
-            // 初始加载列表 (如果后端通过Jinja2渲染了初始数据，这里可能不需要)
-            // 但通常AJAX应用会通过JS获取初始数据
-            fetch('/get-items') // 假设有一个新的API来获取所有项目 (或者您的根路由 '/' 就直接返回这个结构)
+            // 初始加载列表
+            fetch('/get-items')
                 .then(response => {
                     if (!response.ok) {
                         // 如果后端没有/get-items路由，或者返回格式不对，这里会捕获
@@ -193,10 +196,11 @@
                 });
         });
 
-        // // 辅助函数：判断是否是移动设备
-        // function isMobileDevice() {
-        //     return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        // }
+        // 辅助函数：判断是否是移动设备
+        /** 本来打算让移动端一律隐藏“从剪贴板添加”按钮，但发现有些浏览器是支持的
+        function isMobileDevice() {
+            return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        } **/
 
         // 显示消息的函数
         function showMessage(message, type) {
@@ -341,7 +345,7 @@
 
         // 监听“清除所有”按钮
         document.getElementById('clear-all-btn').addEventListener('click', () => {
-            if (confirm('确定要清除所有项目吗？')) {
+            if (confirm('确定要清除所有内容吗？')) {
                 fetch('/clear-all', {
                     method: 'POST',
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -354,7 +358,7 @@
                 })
                 .then(data => {
                     if (data.status === 'success') {
-                        showMessage('所有项目已清除', 'success');
+                        showMessage('所有内容已清除', 'success');
                         updateList(data.items || []);
                     } else {
                         showMessage(data.message || '清除失败', 'danger');
@@ -421,23 +425,23 @@
         function showCopyFeedback(button, success, fallbackText = '') {
             const originalText = '复制';
             // 原始类名保留，只改变颜色相关的类
-            const originalClasses = ['btn-copy', 'btn-sm']; // 根据你的CSS，可能还有其他默认类
+            const originalClasses = ['btn-copy', 'btn-sm'];
 
             if (success) {
                 button.textContent = '已复制!';
                 button.classList.add('btn-success');
-                button.classList.remove('btn-copy'); // 移除原来的颜色类
+                button.classList.remove('btn-copy');
             } else {
                 button.textContent = '复制失败!';
                 button.classList.add('btn-danger');
-                button.classList.remove('btn-copy'); // 移除原来的颜色类
+                button.classList.remove('btn-copy');
                 alert('自动复制失败，请手动复制:\n\n' + fallbackText);
             }
 
             setTimeout(() => {
                 button.textContent = originalText;
-                button.classList.remove('btn-success', 'btn-danger'); // 移除临时的颜色类
-                button.classList.add('btn-copy'); // 恢复原来的颜色类
+                button.classList.remove('btn-success', 'btn-danger');
+                button.classList.add('btn-copy');
             }, 2000);
         }
     </script>

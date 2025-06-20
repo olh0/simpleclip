@@ -128,15 +128,13 @@
 
         <div id="list-container" class="list-group">
             <!-- 初始加载的内容，如果后端通过Jinja2渲染，结构应与JS动态生成一致 -->
-            {% for item_content, item_timestamp in items %}
                 <div class="list-item">
                     <div class="list-content-wrapper">
-                        <div class="list-text">{{ item_content }}</div>
-                        <div class="list-timestamp">{{ item_timestamp }}</div>
+                        <div class="list-text"></div>
+                        <div class="list-timestamp"></div>
                     </div>
                     <button class="btn btn-copy btn-sm copy-btn">复制</button>
                 </div>
-            {% endfor %}
         </div>
     </div>
 
@@ -156,7 +154,6 @@
 
             // 初始加载列表 (如果后端通过Jinja2渲染了初始数据，这里可能不需要)
             // 但通常AJAX应用会通过JS获取初始数据
-            /**
             fetch('/get-items') // 假设有一个新的API来获取所有项目 (或者您的根路由 '/' 就直接返回这个结构)
                 .then(response => {
                     if (!response.ok) {
@@ -193,7 +190,7 @@
                     if (error.message.includes('Failed to fetch')) {
                         showMessage('加载列表失败，请检查网络连接', 'danger');
                     }
-                }); **/
+                });
         });
 
         // // 辅助函数：判断是否是移动设备

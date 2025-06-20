@@ -48,14 +48,14 @@ def add_item():
         }), 400
 
 # 用于JS初始加载列表。前端暂用Jinja2方式获取列表
-"""
+
 @app.route('/get-items', methods=['GET'])
 def get_items():
     return jsonify({
         'status': 'success',
         'items': clip_list[::-1][0:6]
     })
-"""
+
 @app.route('/clear-all', methods=['POST'])
 def clear_all():
     """

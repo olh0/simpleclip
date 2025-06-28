@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>在线剪贴板 - 懒加载版</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>在线剪贴板</title>
     <style>
-
         :root {
             --primary-color: #4f46e5; --primary-color-light: rgba(79, 70, 229, 0.1); --background-color: #f8f9fc; --surface-color: #ffffff; --border-color: #e5e7eb; --text-primary: #1f2937; --text-secondary: #6b7280; --success-color: #10b981; --danger-color: #ef4444; --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
         }
@@ -106,8 +106,8 @@
             loadStatusEl.textContent = '正在加载...';
 
             try {
-                // 传送 page, size, items, status, total
-                const response = await fetch(`/get-items?page=${page}`);
+                // 路由通讯 page, size, items, status, total
+                const response = await fetch(`/get-items?page=${page}&size=${PAGE_SIZE}`);
                 if (!response.ok) throw new Error('服务器响应错误');
 
                 const data = await response.json();
@@ -120,7 +120,7 @@
                     hasMoreData = totalLoaded < data.total;
 
                     if (!hasMoreData && totalLoaded > 0) {
-                        loadStatusEl.textContent = '没有更多数据了';
+                        loadStatusEl.textContent = '已经到底了～';
                     } else if (!hasMoreData && totalLoaded === 0) {
                         listContainer.innerHTML = '<div style="text-align:center; color: var(--text-secondary); padding: 40px 0;">剪贴板是空的，快来添加第一条内容吧！</div>';
                         loadStatusEl.textContent = '';
@@ -261,20 +261,6 @@
         });
 
         // 复制按钮（事件委托）
-
-        /*
-        listContainer.addEventListener('click', (e) => {
-            const button = e.target.closest('.copy-btn');
-            if (button) {
-                const textToCopy = button.previousElementSibling.querySelector('.list-text').textContent;
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    showCopyFeedback(button, true);
-                }).catch(() => {
-                    showCopyFeedback(button, false);
-                });
-            }
-        });
-        */
         document.getElementById('list-container').addEventListener('click', (e) => {
             const button = e.target.closest('.copy-btn');
             if (button) {
@@ -325,9 +311,9 @@
         }
 
 
-        // --- 辅助函数 (保持不变) ---
-        function showMessage(message, type) { /* ... 代码同上 ... */ const messageArea = document.getElementById('message-area');const alertDiv = document.createElement('div');alertDiv.className = `alert alert-${type}`;alertDiv.innerHTML = `<span>${message}</span><button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>`;messageArea.innerHTML = '';messageArea.appendChild(alertDiv);}
-        function showCopyFeedback(button, success) { /* ... 代码同上 ... */ button.innerHTML = success ? checkIconSVG : '复制失败'; button.classList.add(success ? 'btn-success' : 'btn-danger'); setTimeout(() => { button.innerHTML = copyIconSVG; button.classList.remove('btn-success', 'btn-danger'); }, 2000); }
+        // --- 信息显示和反馈 ---
+        function showMessage(message, type) {const messageArea = document.getElementById('message-area');const alertDiv = document.createElement('div');alertDiv.className = `alert alert-${type}`;alertDiv.innerHTML = `<span>${message}</span><button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>`;messageArea.innerHTML = '';messageArea.appendChild(alertDiv);}
+        function showCopyFeedback(button, success) {button.innerHTML = success ? checkIconSVG : '复制失败'; button.classList.add(success ? 'btn-success' : 'btn-danger'); setTimeout(() => { button.innerHTML = copyIconSVG; button.classList.remove('btn-success', 'btn-danger'); }, 2000); }
     </script>
 </body>
 </html>

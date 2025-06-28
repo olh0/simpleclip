@@ -1,22 +1,20 @@
 from flask import Flask, render_template, request, jsonify
 import logging
 import datetime
+# https://flask.org.cn/en/stable/
 
 # 配置日志记录
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.disable
+
 app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
+ # 初始数据
 time_iso = datetime.datetime.now().isoformat()
-# 列表模拟剪贴板数据库
-# clip_list 存储的是 (内容, ISO格式时间字符串) 的元组
-clip_list = [
-    ('若非要添加隐私信息，请及时清理！', time_iso),
-    ('数据保存在服务器，勿轻易上传隐私信息！', time_iso),
-    ('https://www.google.com', time_iso),
-    ('这是一个简单的网络剪贴板', time_iso),
-] * 8 # 初始数据
+texts = ['https://github.com/oulh/simpleclip','这是一个简单的网络剪贴板，由 python flask 驱动',
+          '数据上传到服务器，不要轻易添加隐私信息！', '数据不支持持久化，能保存多久取决于运行方式及稳定性']
+clip_list = [(text, time_iso) for text in texts[::-1]] # 列表模拟剪贴板数据库
 
 @app.route('/', methods=['GET'])
 def index():
@@ -46,30 +44,26 @@ def add_item():
             'message': '请输入有效的内容'
         }), 400
 
-# 用于JS初始加载列表。
-
+# 加载列表
 @app.route('/get-items', methods=['GET'])
 def get_items():
-    # page = request.args.get('page', 1, type=int)
-    # size = request.args.get('size', 8, type=int)
-    page = 1
-    size = 8
+    page = request.args.get('page', 1, type=int) # 加载第一页
+    size = request.args.get('size', 8, type=int) # 每页加载8个列表
+
     items_all = clip_list[::-1]
     total_items = len(items_all)
-    # 0:8
-    # 8:16
-    # 16:24
+    # 切片得到每页数据
     start_index = (page - 1) * size
     end_index = (page - 1) * size + size
     items_deliver = items_all[start_index:end_index]
-
+    logging.info(f'已加载{page}页')
     return jsonify({
         'status': 'success',
         # 'items': clip_list[::-1][0:6]
         'items': items_deliver,
         'total': total_items,
         'page': page,
-        # 'size': size,
+        'size': size,
     })
 
 @app.route('/clear-all', methods=['POST'])
@@ -84,8 +78,9 @@ def clear_all():
     return jsonify({
         'status': 'success',
         'message': '所有内容已清除',
-        'items': [] # 清空后返回空列表
+        'items': []
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5001')

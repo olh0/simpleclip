@@ -14,7 +14,6 @@ app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 # time_iso = datetime.datetime.now().isoformat()
 # global clip_list
 # clip_list = []
-clip_list = sql.test()
 def initial_list():
     # global clip_list
     clip_list = sql.test()
@@ -32,6 +31,7 @@ def initial_list():
     #         logging.info("已初始化一条记录...")
 
 # initial_list()
+clip_list = sql.test()
 
 
 @app.route('/', methods=['GET'])

@@ -13,7 +13,7 @@ app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
 
 def initial_list(sql_success):
-    global clip_list
+    # global clip_list
     time_iso = datetime.datetime.now().isoformat()
     if sql_success:
         clip_list = sql.get_contents()
@@ -110,6 +110,7 @@ def clear_all():
 
 
 if __name__ == '__main__':
+    global clip_list
     sql_success = sql.init_sql()
     logging.info(f"数据库状态：{sql_success}")
     initial_list(sql_success)

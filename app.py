@@ -12,16 +12,16 @@ app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
 # time_iso = datetime.datetime.now().isoformat()
-clip_list = sql.test()
+clip_list = []
 
-def initial_list(sql_success):
+def initial_list():
     # global clip_list
     time_iso = datetime.datetime.now().isoformat()
-    if sql_success:
-        clip_list = sql.get_contents()
-    else:
+
+    clip_list = sql.get_contents()
+    if clip_list == False:
         clip_list = [0]
-    if clip_list == []:
+    else if clip_list == []:
         texts = ['https://github.com/oulh/simpleclip','这是一个简单的网络剪贴板，由 python flask 驱动',
             '数据上传到服务器，不要轻易添加隐私信息！', '数据不支持持久化，能保存多久取决于运行方式及稳定性']
         for text in texts[::-1]:
@@ -66,7 +66,7 @@ def add_item():
 # 加载列表
 @app.route('/get-items', methods=['GET'])
 def get_items():
-    # status = 'sql_error' if clip_list == [0] else 'success'
+    status = 'sql_error' if clip_list == [0] else 'success'
     
     page = request.args.get('page', 1, type=int) # 加载第一页
     size = request.args.get('size', 8, type=int) # 每页加载8个列表
@@ -112,8 +112,8 @@ def clear_all():
 
 
 if __name__ == '__main__':
-    sql_success = sql.init_sql()
-    logging.info(f"数据库状态：{sql_success}")
-    initial_list(sql_success)
+    sql.init_sql()
+    # logging.info(f"数据库状态：{sql_success}")
+    initial_list()
     app.run(debug=True, host='0.0.0.0', port='5001')
     # app.run(debug=True)

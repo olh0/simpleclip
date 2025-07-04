@@ -65,7 +65,7 @@ def add_item():
 # 加载列表
 @app.route('/get-items', methods=['GET'])
 def get_items():
-    status = 'sql_error' if clip_list == [0] else 'success'
+    # status = 'sql_error' if clip_list == [0] else 'success'
     
     page = request.args.get('page', 1, type=int) # 加载第一页
     size = request.args.get('size', 8, type=int) # 每页加载8个列表
@@ -80,7 +80,7 @@ def get_items():
     logging.info(f'已加载{page}页')
     
     return jsonify({
-        'status': status,
+        'status': "success",
         # 'items': clip_list[::-1][0:6]
         'items': items_deliver,
         'total': total_items,

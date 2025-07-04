@@ -67,14 +67,14 @@
                 <button id="add-btn" class="btn btn-add">添加内容</button>
             </div>
         </div>
-
+        
         <div id="list-container"></div>
-
+        
         <!-- 新增一个元素，用于显示加载状态 -->
         <div id="load-status"></div>
 
     </div>
-
+    
     <script>
         // --- 全局变量和常量 ---
         const listContainer = document.getElementById('list-container');
@@ -109,7 +109,7 @@
                 // 路由通讯 page, size, items, status, total
                 const response = await fetch(`/get-items?page=${page}&size=${PAGE_SIZE}`);
                 if (!response.ok) throw new Error('服务器响应错误');
-
+                
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -127,8 +127,8 @@
                     } else {
                         loadStatusEl.textContent = '';
                     }
-                } else {
-                    throw new Error(data.message || '加载失败');
+                } else if (data.status === 'sql_error'){
+                    throw new Error(data.message || '数据库连接错误');
                 }
             } catch (error) {
                 loadStatusEl.textContent = `加载失败: ${error.message}`;
@@ -147,7 +147,7 @@
                 if (isNewLoad && index === 0) {
                     itemElement.classList.add('new-item');
                 }
-
+                
                 // ... [创建 itemElement 内部结构的代码保持不变] ...
                 const contentWrapper = document.createElement('div');
                 contentWrapper.className = 'list-content-wrapper';
@@ -229,7 +229,7 @@
                 loadItems(currentPage + 1);
             }
         });
-
+        
         // “添加”按钮
         document.getElementById('add-btn').addEventListener('click', () => {
             addItemToServer(document.getElementById('new_item').value);
@@ -259,7 +259,7 @@
                 .catch(error => showMessage(error.message || '请求失败', 'danger'));
             }
         });
-
+        
         // 复制按钮（事件委托）
         document.getElementById('list-container').addEventListener('click', (e) => {
             const button = e.target.closest('.copy-btn');
@@ -310,7 +310,7 @@
             return success;
         }
 
-
+        
         // --- 信息显示和反馈 ---
         function showMessage(message, type) {const messageArea = document.getElementById('message-area');const alertDiv = document.createElement('div');alertDiv.className = `alert alert-${type}`;alertDiv.innerHTML = `<span>${message}</span><button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>`;messageArea.innerHTML = '';messageArea.appendChild(alertDiv);}
         function showCopyFeedback(button, success) {button.innerHTML = success ? checkIconSVG : '复制失败'; button.classList.add(success ? 'btn-success' : 'btn-danger'); setTimeout(() => { button.innerHTML = copyIconSVG; button.classList.remove('btn-success', 'btn-danger'); }, 2000); }

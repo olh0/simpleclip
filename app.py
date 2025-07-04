@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
+global clip_list
 
 def initial_list(sql_success):
     # global clip_list
@@ -110,7 +111,6 @@ def clear_all():
 
 
 if __name__ == '__main__':
-    global clip_list
     sql_success = sql.init_sql()
     logging.info(f"数据库状态：{sql_success}")
     initial_list(sql_success)

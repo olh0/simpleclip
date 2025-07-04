@@ -30,7 +30,7 @@ def initial_list():
     #         sql.create_contents(text, time_iso)
     #         logging.info("已初始化一条记录...")
 
-initial_list()
+# initial_list()
 # clip_list = sql.test()
 
 

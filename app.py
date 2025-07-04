@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
 # time_iso = datetime.datetime.now().isoformat()
-global clip_list
-clip_list = []
+# global clip_list
+# clip_list = []
 def initial_list():
     # global clip_list
     clip_list = sql.test()
@@ -30,7 +30,7 @@ def initial_list():
     #         sql.create_contents(text, time_iso)
     #         logging.info("已初始化一条记录...")
 
-initial_list()
+# initial_list()
 # clip_list = sql.test()
 
 
@@ -116,6 +116,7 @@ def clear_all():
             'items': clip_list
         })
 
+clip_list = sql.test()
 # sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")
 

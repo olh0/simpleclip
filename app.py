@@ -30,7 +30,7 @@ def initial_list():
     #         sql.create_contents(text, time_iso)
     #         logging.info("已初始化一条记录...")
 
-# initial_list()
+initial_list()
 # clip_list = sql.test()
 
 
@@ -121,9 +121,9 @@ def clear_all():
     # logging.info(f"数据库状态：{sql_success}")
 
 if __name__ == '__main__':
-    sql.init_sql()
+    # sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")
-    initial_list()
+    # initial_list()
     # app.run(debug=True, host='0.0.0.0', port='5001')
     logging.info("ffff!uuu!ccc!kkkk")
 

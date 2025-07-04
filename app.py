@@ -16,19 +16,19 @@ app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 # clip_list = []
 def initial_list():
     global clip_list
-    clip_list = sql.test()
+    # clip_list = sql.test()
     logging.info("ffffuuuccckkkk")
-    # time_iso = datetime.datetime.now().isoformat()
-    #
-    # clip_list = sql.get_contents()
-    # if clip_list == False:
-    #     clip_list = [0]
-    # elif clip_list == []:
-    #     texts = ['https://github.com/oulh/simpleclip','这是一个简单的网络剪贴板，由 python flask 驱动',
-    #         '数据上传到服务器，不要轻易添加隐私信息！', '数据不支持持久化，能保存多久取决于运行方式及稳定性']
-    #     for text in texts[::-1]:
-    #         sql.create_contents(text, time_iso)
-    #         logging.info("已初始化一条记录...")
+    time_iso = datetime.datetime.now().isoformat()
+
+    clip_list = sql.get_contents()
+    if clip_list == False:
+        clip_list = [0]
+    elif clip_list == []:
+        texts = ['https://github.com/oulh/simpleclip','这是一个简单的网络剪贴板，由 python flask 驱动',
+            '数据上传到服务器，不要轻易添加隐私信息！', '数据不支持持久化，能保存多久取决于运行方式及稳定性']
+        for text in texts[::-1]:
+            sql.create_contents(text, time_iso)
+            logging.info("已初始化一条记录...")
 
 initial_list()
 # clip_list = sql.test()

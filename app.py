@@ -17,7 +17,7 @@ global clip_list
 def initial_list():
     # global clip_list
     clip_list = sql.test()
-
+    logging.info("ffffuuuccckkkk")
     # time_iso = datetime.datetime.now().isoformat()
     #
     # clip_list = sql.get_contents()
@@ -125,4 +125,6 @@ if __name__ == '__main__':
     # logging.info(f"数据库状态：{sql_success}")
     initial_list()
     # app.run(debug=True, host='0.0.0.0', port='5001')
+    logging.info("ffff!uuu!ccc!kkkk")
+
     app.run(debug=True)

@@ -21,7 +21,7 @@ def initial_list():
     clip_list = sql.get_contents()
     if clip_list == False:
         clip_list = [0]
-    else if clip_list == []:
+    elif clip_list == []:
         texts = ['https://github.com/oulh/simpleclip','这是一个简单的网络剪贴板，由 python flask 驱动',
             '数据上传到服务器，不要轻易添加隐私信息！', '数据不支持持久化，能保存多久取决于运行方式及稳定性']
         for text in texts[::-1]:

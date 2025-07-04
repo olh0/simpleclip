@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
-time_iso = datetime.datetime.now().isoformat()
-clip_list = [("test",time_iso)]
+# time_iso = datetime.datetime.now().isoformat()
+clip_list = sql.test()
 
 def initial_list(sql_success):
     # global clip_list

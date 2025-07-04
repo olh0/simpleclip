@@ -2,6 +2,10 @@ import psycopg2, datetime
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
+def test():
+    time_iso = datetime.datetime.now().isoformat()
+    return [("tttttttt",time_iso)]
 # https://pypi.org/project/db/
 #import db.extras  # 如果使用 RealDictCursor 等
 # 数据库连接配置

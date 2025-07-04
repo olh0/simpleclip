@@ -115,5 +115,5 @@ if __name__ == '__main__':
     sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")
     initial_list()
-    app.run(debug=True, host='0.0.0.0', port='5001')
-    # app.run(debug=True)
+    # app.run(debug=True, host='0.0.0.0', port='5001')
+    app.run(debug=True)

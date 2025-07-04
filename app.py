@@ -12,7 +12,8 @@ app = Flask(__name__)
 app.secret_key = 'jjfjjmldhzbwjzswwntx'  # 用于会话安全
 
 # time_iso = datetime.datetime.now().isoformat()
-clip_list = []
+# global clip_list
+# clip_list = []
 
 def initial_list():
     # global clip_list
@@ -115,6 +116,7 @@ def clear_all():
 # sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")
 initial_list()
+clip_list = sql.test()
 
 if __name__ == '__main__':
     sql.init_sql()

@@ -110,6 +110,9 @@ def clear_all():
             'items': clip_list
         })
 
+sql.init_sql()
+    # logging.info(f"数据库状态：{sql_success}")
+initial_list()
 
 if __name__ == '__main__':
     sql.init_sql()

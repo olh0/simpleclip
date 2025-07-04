@@ -112,7 +112,7 @@ def clear_all():
             'items': clip_list
         })
 
-sql.init_sql()
+# sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")
 initial_list()
 

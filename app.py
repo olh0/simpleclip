@@ -30,7 +30,7 @@ def initial_list():
             sql.create_contents(text, time_iso)
             logging.info("已初始化一条记录...")
 
-initial_list()
+
 # clip_list = sql.test()
 
 
@@ -115,7 +115,7 @@ def clear_all():
             'message': '数据库错误，清除失败',
             'items': clip_list
         })
-
+initial_list()
 # clip_list = sql.test()
 # sql.init_sql()
     # logging.info(f"数据库状态：{sql_success}")

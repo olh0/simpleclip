@@ -1,21 +1,31 @@
-import psycopg2, datetime
+import psycopg2
 import logging
+import os
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-def test():
-    time_iso = datetime.datetime.now().isoformat()
-    return [("tttttttt",time_iso)]
 # https://pypi.org/project/db/
 #import db.extras  # 如果使用 RealDictCursor 等
 # 数据库连接配置
+# DB_CONFIG = {
+#     "dbname": "postgres",
+#     "user": "postgres.xenfqjnpnjctnrjxxiis",
+#     "password": "ZcYbvf4eXc5gIMso",
+#     "host": "aws-0-ap-northeast-1.pooler.supabase.com",
+#     "port": 6543,
+# }
+
 DB_CONFIG = {
-    "dbname": "postgres",
-    "user": "postgres.xenfqjnpnjctnrjxxiis",
-    "password": "ZcYbvf4eXc5gIMso",
-    "host": "aws-0-ap-northeast-1.pooler.supabase.com",
-    "port": 6543,
-}
+        'host': os.getenv('DB_HOST'),
+        'port': int(os.getenv('DB_PORT', 0)) or None,
+        'user': os.getenv('DB_USER'),
+        'password': os.getenv('DB_PASSWORD'),
+        'dbname': os.getenv('DB_NAME'),
+    }
 
 db = psycopg2
 
@@ -41,12 +51,12 @@ def query_execute(query, params=None, fetch=False):
                 return True
     except db.Error as e:
         logging.info(f"数据库操作失败：{e}")
-        conn.rollback() 
+        conn.rollback()
         return False
     finally:
         conn.close()
 
-def init_sql(): 
+def init_sql():
     query = '''
         CREATE TABLE IF NOT EXISTS clip_contents(
             id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -58,7 +68,7 @@ def init_sql():
     return query_execute(query)
 
 def create_contents(text, time):
-    
+
     query = "INSERT INTO clip_contents (text, time) VALUES (%s, %s::timestamptz(0))"
     params = (text, time)
     return query_execute(query, params)
@@ -70,7 +80,6 @@ def get_contents():
 def delete_contents():
     query = "TRUNCATE TABLE clip_contents RESTART IDENTITY CASCADE"
     return query_execute(query)
-
 
 # if __name__ == "__main__":
 
